@@ -8,6 +8,7 @@ droid = Android()
 droid.startLocating(1, 1000)
 droid.eventWaitFor('location', 12500)
 
+
 async def get_location(websocket, path):
 
     while True:

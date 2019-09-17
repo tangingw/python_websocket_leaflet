@@ -17,8 +17,7 @@
     <body>
         <h1>This is my Leaflet Page</h1>
         <div id="geolocation_data">
-            Current Location (lat, lon): <span id="latitude"></span>, <span id="longitude"></span>
-            
+            Current Location (lat, lon): <span id="latitude"></span>, <span id="longitude"></span>            
         </div>
         <br/>
         <!--div id="mapid" style="width: 1024px; height: 768px;"></div!-->
@@ -34,7 +33,7 @@
                 document.getElementById("longitude").innerHTML = longitude;
 
                 var mymap = L.map("mapid").setView([latitude, longitude], 18, {animation: true});
-                //mymap.setView([latitude, longitude], 18, {animation: true});
+
                 L.tileLayer(
                     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
