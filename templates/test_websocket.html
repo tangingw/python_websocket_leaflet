@@ -1,0 +1,52 @@
+<html>
+    <title>Testing Websocket</title>
+    <body>
+        <style>
+             p {
+                 margin: 25px 50px;
+                 padding: 50px;
+                 width: 300px;
+                 background-color: navy;
+                 font-family: sans-serif;
+                 color: white;
+                 font-size: 20px;
+             }
+        </style>
+        <p id="clock"></p>
+        <script>
+            var ws = new WebSocket("ws://192.168.0.166:8996/")
+            //messages = document.createElement('ul')
+            /*ws.onmessage = function(event) {
+                var messages = document.getElementsByTagName('ul')[0];
+                var message = document.createElement('li');
+                var content = document.createTextNode(event.data)
+                message.appendChild(content)
+                messages.appendChild(message)
+            };
+            document.body.appendChild(messages)
+            */
+            ws.onmessage = function(event) {
+                document.getElementById("clock").innerHTML = event.data;
+                var location_data = JSON.parse(event.data);
+                var location_data_source = null;
+
+                if (location_data.gps == undefined) {
+                    
+                    location_data_source = location_data.network;
+
+                } else {
+
+                    location_data_source = location_data.gps;
+                
+                }
+                latitude = location_data_source.latitude
+                longitude = location_data_source.longitude
+
+                mymap.setView([latitude, longitude], 16, {animation: true});
+
+                L.marker([latitude, longitude]).addTo(mymap).bindPopup("<b>This is a Location point with QPython</b>");
+            }
+        </script>
+    </body>
+    
+</html>

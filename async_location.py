@@ -6,7 +6,6 @@ from androidhelper import Android
 
 droid = Android()
 droid.startLocating(1, 1000)
-droid.eventWaitFor('location', 12500)
 
 
 async def get_location(websocket, path):
@@ -23,7 +22,7 @@ async def get_location(websocket, path):
             json.dumps(current_location)
         )
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.5)
 
 
 def main():
