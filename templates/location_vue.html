@@ -93,10 +93,8 @@
                         },
                         getQPythonData: function(event) {
 
-                            console.log(event)
-                            var location_data = JSON.parse(event.data);
-
                             var location_data_source = null;
+                            const location_data = JSON.parse(event.data);
 
                             if (location_data.gps == undefined) {
                                 
@@ -108,7 +106,7 @@
                             
                             }
 
-                            console.log(this.coord.latitude)
+
                             this.coord.latitude = location_data_source.latitude;
                             this.coord.longitude = location_data_source.longitude;
                             this.datetime = new Date(location_data_source.time);
