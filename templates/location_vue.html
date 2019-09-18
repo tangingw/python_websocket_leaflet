@@ -53,8 +53,6 @@
                             }
                         ).addTo(this.mymap);
                         
-                        this.initWebSocket()
-
                     },
                     methods: {
                         markLocation: function(position) {
@@ -89,9 +87,10 @@
                             }
                         },
                         initWebSocket: function() {
-                            this.websocket = new WebSocket("ws://192.168.43.249:8996/")
-                        },
 
+                            this.websocket = new WebSocket("ws://192.168.43.249:8996/")
+
+                        },
                         getQPythonData: function(event) {
 
                             console.log(event)
@@ -122,6 +121,11 @@
                         },
                         getData: function() {
 
+                            if (!this.websocket) {
+
+                                this.initWebSocket()
+                            }
+                            
                             this.websocket.onmessage = this.getQPythonData
 
                         }
