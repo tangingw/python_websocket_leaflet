@@ -16,9 +16,15 @@
         <div id="geolocation">
             Current Location (lat, lon): <span id="latitude">{{ coord.latitude }}</span>, <span id="longitude">{{ coord.longitude }}</span>
             <br/>
+            Current Altitude (m): <span id="altitude">{{ altitude }}</span>
+            <br>
+            Current Speed (m/s): <span id="speed">{{ speed }}</span>  
+            <br>
+            Current DateTime: <span id="datetime">{{ datetime }}</span>
+            <br/>
             <br/>
             <button @click=getLocation>Get Location</button>
-            <button @click=getQPythonData>Get GPS LiveFeed</button>
+            <button v-on:click=getData>Get GPS LiveFeed</button>
         </div>
         <br/>
         <div id="mymap" style="width: 70%; height: 70%;"></div>
@@ -32,7 +38,11 @@
                             latitude: 3.199881,
                             longitude: 101.719749
                         },
-                        mymap: null
+                        altitude: null,
+                        speed: null,
+                        datetime: null,
+                        mymap: null,
+                        websocket: null
                     },
                     mounted: function() {
                         this.mymap = L.map("mymap").setView([this.coord.latitude, this.coord.longitude], 16)
@@ -42,6 +52,9 @@
                                 maxZoom: 25
                             }
                         ).addTo(this.mymap);
+                        
+                        this.initWebSocket()
+
                     },
                     methods: {
                         markLocation: function(position) {
@@ -75,10 +88,15 @@
                                 alert("Browser does not support Geolocation");
                             }
                         },
+                        initWebSocket: function() {
+                            this.websocket = new WebSocket("ws://192.168.43.249:8996/")
+                        },
+
                         getQPythonData: function(event) {
 
-                            const ws = new WebSocket("ws://192.168.43.197:8996/")
+                            console.log(event)
                             var location_data = JSON.parse(event.data);
+
                             var location_data_source = null;
 
                             if (location_data.gps == undefined) {
@@ -91,12 +109,20 @@
                             
                             }
 
+                            console.log(this.coord.latitude)
                             this.coord.latitude = location_data_source.latitude;
                             this.coord.longitude = location_data_source.longitude;
-
+                            this.datetime = new Date(location_data_source.time);
+                            this.altitude = location_data_source.altitude;
+                            this.speed = location_data_source.speed;
                             this.mymap.setView([this.coord.latitude, this.coord.longitude], 16, {animation: true});
 
                             L.marker([this.coord.latitude, this.coord.longitude]).addTo(this.mymap).bindPopup("<b>This is a Location point with QPython</b>");
+
+                        },
+                        getData: function() {
+
+                            this.websocket.onmessage = this.getQPythonData
 
                         }
                     }

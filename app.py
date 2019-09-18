@@ -25,6 +25,13 @@ def get_oriention_new():
     
     return render_template("test_location.html", websocket_ip=WEBSOCKET_SERVER)
 
+
+@app.route("/location_vue")
+def get_orientation_vue():
+
+    return render_template("location_vue.html")
+
+
 if __name__ == '__main__':
 
     app.run(host="0.0.0.0", port=5000, debug=True, threaded=True)
