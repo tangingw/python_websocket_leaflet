@@ -17,7 +17,13 @@
     <body>
         <h1>This is my Leaflet Page</h1>
         <div id="geolocation_data">
-            Current Location (lat, lon): <span id="latitude"></span>, <span id="longitude"></span>            
+            Current Location (lat, lon): <span id="latitude"></span>, <span id="longitude"></span>
+            <br>
+            Current Altitude (m): <span id="altitude"></span>
+            <br>
+            Current Speed (m/s): <span id="speed"></span>  
+            <br>
+            Current DateTime: <span id="datetime"></span>          
         </div>
         <br/>
         <!--div id="mapid" style="width: 1024px; height: 768px;"></div!-->
@@ -83,7 +89,7 @@
                 shadowSize: [41, 41]
             });
             
-            var ws = new WebSocket("ws://192.168.43.197:8996/");
+            var ws = new WebSocket("ws://{{ websocket_ip }}:8996/");
 
             ws.onmessage = function(event) {
                 //document.getElementById("clock").innerHTML = event.data;
@@ -102,6 +108,12 @@
 
                 latitude = location_data_source.latitude;
                 longitude = location_data_source.longitude;
+
+                document.getElementById("latitude").innerHTML = latitude;
+                document.getElementById("longitude").innerHTML = longitude;
+                document.getElementById("altitude").innerHTML = location_data_source.altitude;
+                document.getElementById("speed").innerHTML = location_data_source.speed;
+                document.getElementById("datetime").innerHTML = new Date(location_data_source.time);
 
                 mymap.setView([latitude, longitude], 16, {animation: true});
 

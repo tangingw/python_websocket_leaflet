@@ -6,7 +6,7 @@ from androidhelper import Android
 
 droid = Android()
 droid.startLocating(1, 1000)
-
+delay_time = 2.0
 
 async def get_location(websocket, path):
 
@@ -18,11 +18,17 @@ async def get_location(websocket, path):
 
             current_location = droid.getLastKnownLocation().result
         
-        await websocket.send(
-            json.dumps(current_location)
-        )
+        if ("gps" not in current_location.keys()) or (not current_location["gps"]):
 
-        await asyncio.sleep(0.5)
+            delay_time = 10.0
+
+        else:
+
+            delay_time = 2.0 
+
+        await websocket.send(json.dumps(current_location))
+
+        await asyncio.sleep(delay_time)
 
 
 def main():

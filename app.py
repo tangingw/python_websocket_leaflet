@@ -2,6 +2,9 @@ from flask import Flask
 from flask import render_template
 
 
+WEBSOCKET_SERVER = "192.168.43.222"
+
+
 app = Flask(__name__)
 
 
@@ -16,6 +19,11 @@ def get_oriention():
     
     return render_template("location.html")
 
+
+@app.route("/location_new")
+def get_oriention_new():
+    
+    return render_template("test_location.html", websocket_ip=WEBSOCKET_SERVER)
 
 if __name__ == '__main__':
 
