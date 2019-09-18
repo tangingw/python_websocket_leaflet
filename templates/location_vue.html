@@ -14,17 +14,18 @@
 
         <h1>This is my Leaflet Page</h1>
         <div id="geolocation">
-            Current Location (lat, lon): <span id="latitude">{{ coord.latitude }}</span>, <span id="longitude">{{ coord.longitude }}</span>
+            Current Location (lat, lon): <span id="latitude"></span>, <span id="longitude"></span>
             <br/>
-            Current Altitude (m): <span id="altitude">{{ altitude }}</span>
+            Current Altitude (m): <span id="altitude"></span>
             <br>
-            Current Speed (m/s): <span id="speed">{{ speed }}</span>  
+            Current Speed (m/s): <span id="speed"></span>  
             <br>
-            Current DateTime: <span id="datetime">{{ datetime }}</span>
+            Current DateTime: <span id="time"></span>
             <br/>
             <br/>
             <button @click=getLocation>Get Location</button>
             <button v-on:click=getData>Get GPS LiveFeed</button>
+            <span id="feed_end" v-if=seen>The live feed has ended</span>
         </div>
         <br/>
         <div id="mymap" style="width: 70%; height: 70%;"></div>
@@ -38,13 +39,16 @@
                             latitude: 3.199881,
                             longitude: 101.719749
                         },
-                        altitude: null,
-                        speed: null,
-                        datetime: null,
+                        seen: false,
                         mymap: null,
-                        websocket: null
+                        websocket: null,
+                        switchState: false
                     },
                     mounted: function() {
+
+                        document.getElementById("latitude").innerHTML = this.coord.latitude;
+                        document.getElementById("longitude").innerHTML = this.coord.longitude;
+
                         this.mymap = L.map("mymap").setView([this.coord.latitude, this.coord.longitude], 16)
                         L.tileLayer(
                             'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -88,10 +92,14 @@
                         },
                         initWebSocket: function() {
 
-                            this.websocket = new WebSocket("ws://192.168.43.249:8996/")
+                            this.websocket = new WebSocket("ws://{{ websocket_ip }}:8996/")
 
                         },
                         getQPythonData: function(event) {
+
+                            if (this.seen) {
+                                this.seen = false
+                            }
 
                             var location_data_source = null;
                             const location_data = JSON.parse(event.data);
@@ -106,26 +114,44 @@
                             
                             }
 
+                            const attributeArray = ["latitude", "longitude", "altitude", "speed"]
 
-                            this.coord.latitude = location_data_source.latitude;
-                            this.coord.longitude = location_data_source.longitude;
-                            this.datetime = new Date(location_data_source.time);
-                            this.altitude = location_data_source.altitude;
-                            this.speed = location_data_source.speed;
-                            this.mymap.setView([this.coord.latitude, this.coord.longitude], 16, {animation: true});
+                            for (i = 0; i < attributeArray.length; i++) {
+
+                                document.getElementById(attributeArray[i]).innerHTML = location_data_source[attributeArray[i]];
+                            }
+                            
+                            document.getElementById("time").innerHTML = new Date(location_data_source.time);
+                            
+                            current_zoom = this.mymap.getZoom()
+                            this.mymap.setView([location_data_source.latitude, location_data_source.longitude], current_zoom, {animation: true});
 
                             L.marker([this.coord.latitude, this.coord.longitude]).addTo(this.mymap).bindPopup("<b>This is a Location point with QPython</b>");
 
                         },
+                        websocketClose: function(event) {
+
+                            this.seen = true
+                            console.log(event)
+
+                        },
                         getData: function() {
 
-                            if (!this.websocket) {
+                            if (!this.websocket || this.websocket.readyState != 1) {
 
                                 this.initWebSocket()
                             }
-                            
-                            this.websocket.onmessage = this.getQPythonData
 
+                            if (!this.switchState) {
+                        
+                                this.websocket.onmessage = this.getQPythonData
+                                this.switchState = true  
+
+                            }else {
+                                this.websocket.close()
+                                this.websocket.onclose = this.websocketClose
+                                this.switchState = false
+                            }
                         }
                     }
                 }

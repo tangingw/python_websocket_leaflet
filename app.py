@@ -2,7 +2,7 @@ from flask import Flask
 from flask import render_template
 
 
-WEBSOCKET_SERVER = "192.168.43.222"
+WEBSOCKET_SERVER = "192.168.0.166"
 
 
 app = Flask(__name__)
@@ -29,7 +29,7 @@ def get_oriention_new():
 @app.route("/location_vue")
 def get_orientation_vue():
 
-    return render_template("location_vue.html")
+    return render_template("location_vue.html", websocket_ip=WEBSOCKET_SERVER)
 
 
 if __name__ == '__main__':
