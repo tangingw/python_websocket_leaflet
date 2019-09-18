@@ -1,0 +1,112 @@
+<html>
+    <head>	
+        <title>This is my Leaflet page!</title>
+
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">               
+        <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+            
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>      
+    </head>
+    <body>
+
+        <h1>This is my Leaflet Page</h1>
+        <div id="geolocation">
+            Current Location (lat, lon): <span id="latitude">{{ coord.latitude }}</span>, <span id="longitude">{{ coord.longitude }}</span>
+            <br/>
+            <br/>
+            <button @click=getLocation>Get Location</button>
+            <button @click=getQPythonData>Get GPS LiveFeed</button>
+        </div>
+        <br/>
+        <div id="mymap" style="width: 70%; height: 70%;"></div>
+        <script>
+
+            var app = new Vue(
+                {
+                    el: "#geolocation",
+                    data: {
+                        coord: {
+                            latitude: 3.199881,
+                            longitude: 101.719749
+                        },
+                        mymap: null
+                    },
+                    mounted: function() {
+                        this.mymap = L.map("mymap").setView([this.coord.latitude, this.coord.longitude], 16)
+                        L.tileLayer(
+                            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                                maxZoom: 25
+                            }
+                        ).addTo(this.mymap);
+                    },
+                    methods: {
+                        markLocation: function(position) {
+
+                                var redIcon = new L.Icon({
+                                    iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                                    iconSize: [25, 41],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34],
+                                    shadowSize: [41, 41]
+                                });
+
+                                this.coord.latitude = position.coords.latitude;
+                                this.coord.longitude = position.coords.longitude;
+
+                                this.mymap.setView([this.coord.latitude, this.coord.longitude], 16, {animation: true});
+                                L.marker([this.coord.latitude, this.coord.longitude], {icon: redIcon}).addTo(this.mymap).bindPopup(
+                                    "<b>This is a Geolocation point with HTML5 Geolocation</b>"
+                                );
+
+                        },
+                        getLocation: function() {
+
+                            if (navigator.geolocation) {
+                                
+                                navigator.geolocation.getCurrentPosition(this.markLocation);
+
+                            } else {
+
+                                alert("Browser does not support Geolocation");
+                            }
+                        },
+                        getQPythonData: function(event) {
+
+                            const ws = new WebSocket("ws://192.168.43.197:8996/")
+                            var location_data = JSON.parse(event.data);
+                            var location_data_source = null;
+
+                            if (location_data.gps == undefined) {
+                                
+                                location_data_source = location_data.network;
+
+                            } else {
+
+                                location_data_source = location_data.gps;
+                            
+                            }
+
+                            this.coord.latitude = location_data_source.latitude;
+                            this.coord.longitude = location_data_source.longitude;
+
+                            this.mymap.setView([this.coord.latitude, this.coord.longitude], 16, {animation: true});
+
+                            L.marker([this.coord.latitude, this.coord.longitude]).addTo(this.mymap).bindPopup("<b>This is a Location point with QPython</b>");
+
+                        }
+                    }
+                }
+            )
+
+         </script>
+        <br>
+
+    </body>
+
+
+</html>

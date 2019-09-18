@@ -27,7 +27,6 @@ async def get_location(websocket, path):
             delay_time = 2.0 
 
         await websocket.send(json.dumps(current_location))
-
         await asyncio.sleep(delay_time)
 
 
