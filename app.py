@@ -2,7 +2,7 @@ from flask import Flask
 from flask import render_template
 
 
-WEBSOCKET_SERVER = "192.168.0.166"
+WEBSOCKET_SERVER = "192.168.100.158"
 
 
 app = Flask(__name__)
